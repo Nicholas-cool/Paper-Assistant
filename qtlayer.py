@@ -8,6 +8,7 @@ from PySide2.QtGui import QFont, QColor, QPalette
 import sqlite3
 import fitz  # PyMuPDF
 import subprocess
+import yaml
 
 
 class CommentCard(QFrame):
@@ -126,10 +127,11 @@ class CommentCard(QFrame):
 
 
 class AddThemeDialog(QDialog):
-    def __init__(self):
+    def __init__(self, db_file):
         super(AddThemeDialog, self).__init__()
         self.setWindowTitle("新增主题")
         self.setGeometry(800, 400, 400, 200)
+        self.db_file = db_file   # 数据库文件
 
         # 设置字体和行距
         font = QFont()
@@ -140,7 +142,7 @@ class AddThemeDialog(QDialog):
         self.type_combobox = QComboBox()
 
         # 获取类型
-        conn = sqlite3.connect('c_data.db')
+        conn = sqlite3.connect(self.db_file)
         cur = conn.cursor()
         cur.execute(""" select * from category """)
         category_list = [line[0] for line in cur.fetchall()]
@@ -187,7 +189,7 @@ class AddThemeDialog(QDialog):
             return
 
         # 插入数据库中
-        conn = sqlite3.connect('c_data.db')
+        conn = sqlite3.connect(self.db_file)
         cur = conn.cursor()
         cur.execute(""" insert into theme (category, name, desc) values (?, ?, ?) """, (t_type, t_title, t_desc))
         conn.commit()
@@ -199,9 +201,10 @@ class AddThemeDialog(QDialog):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, PDF_folder):
+    def __init__(self, PDF_folder, db_file):
         super(MainWindow, self).__init__()
         self.pdf_folder = PDF_folder
+        self.db_file = db_file
         self.setWindowTitle("Paper Comment Application")
         # self.setFixedSize(650, 600)  # 固定大小
         self.setGeometry(500, 200, 650, 600)   # 可拖动窗口大小
@@ -274,7 +277,7 @@ class MainWindow(QMainWindow):
         search_type = QComboBox()
         search_type.addItem("全部")
         # 获取类型
-        conn = sqlite3.connect('c_data.db')
+        conn = sqlite3.connect(self.db_file)
         cur = conn.cursor()
         cur.execute(""" select * from category """)
         category_list = [line[0] for line in cur.fetchall()]
@@ -365,7 +368,7 @@ class MainWindow(QMainWindow):
         # print(anno_dic)
 
         # 获取数据库数据
-        conn = sqlite3.connect('c_data.db')
+        conn = sqlite3.connect(self.db_file)
         cur = conn.cursor()
 
         comments_data = []
@@ -418,7 +421,7 @@ class MainWindow(QMainWindow):
         QApplication.processEvents()  # 立刻更新字体状态
 
     def show_add_theme_dialog(self):
-        dialog = AddThemeDialog()
+        dialog = AddThemeDialog(self.db_file)
         result = dialog.exec_()
 
         if result == QDialog.Accepted:  # 添加成功
@@ -427,8 +430,12 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == "__main__":
+    # 读取配置项
+    with open('config.yaml', 'r', encoding='utf-8') as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+
     app = QApplication(sys.argv)
-    window = MainWindow(PDF_folder=r'C:\Users\wang\Zotero\storage')
+    window = MainWindow(PDF_folder=config['paper_repo_path'], db_file=config['db_file'])
 
     window.show()
     sys.exit(app.exec_())
