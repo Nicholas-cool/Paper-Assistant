@@ -1,6 +1,6 @@
 import os
 import sys
-from PySide2.QtCore import QRect
+from PySide2.QtCore import QRect, Qt
 from PySide2.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, \
     QLineEdit, QFrame, QScrollArea, QTextEdit, QTabWidget, QListWidget, QListWidgetItem, QSizePolicy, QComboBox, \
     QDialog, QMessageBox, QTableWidget, QTableWidgetItem, QHeaderView, QAbstractItemView, QSizeGrip
@@ -205,6 +205,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Paper Comment Application")
         # self.setFixedSize(650, 600)  # 固定大小
         self.setGeometry(500, 200, 650, 600)   # 可拖动窗口大小
+        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)  # 设置窗口始终保持在最前面
         self.init_ui()
 
         # 创建 QSizeGrip 小部件并添加到窗口的右下角
