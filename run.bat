@@ -1,1 +1,1 @@
-python qtlayer.py
+python main.py
