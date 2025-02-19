@@ -1,7 +1,34 @@
 import os
 from PySide2.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QTabWidget, \
-    QSizePolicy, QTableWidget, QTableWidgetItem, QHeaderView, QAbstractItemView
+    QSizePolicy, QTableWidget, QTableWidgetItem, QHeaderView, QAbstractItemView, QApplication
+from PySide2.QtCore import Qt, QTimer
 import subprocess
+
+
+# 自定义可点击标签
+class ClickableLabel(QLabel):
+    def __init__(self, text, parent=None):
+        super(ClickableLabel, self).__init__(text, parent)
+        # 设置鼠标悬停时为手型光标
+        self.setCursor(Qt.PointingHandCursor)
+        # 保存原始样式（如果没有设置过样式，则默认正常字体和黑色）
+        self.original_style = self.styleSheet() or "font-weight: normal; color: black;"
+
+    def mousePressEvent(self, event):
+        # 复制文本到剪贴板
+        clipboard = QApplication.clipboard()
+        clipboard.setText(self.text())
+
+        # 设置字体样式：加粗且颜色变为蓝色
+        self.setStyleSheet("font-weight: bold; color: blue;")
+        # 0.5秒后恢复原始样式
+        QTimer.singleShot(200, self.restore_style)
+
+        # 调用父类的 mousePressEvent（如果需要其他处理，可扩展此处）
+        super(ClickableLabel, self).mousePressEvent(event)
+
+    def restore_style(self):
+        self.setStyleSheet(self.original_style)
 
 
 class CommentCard(QFrame):
@@ -11,7 +38,7 @@ class CommentCard(QFrame):
         self.setLineWidth(2)
 
         self.type_label = QLabel(type)
-        self.title_label = QLabel(title)
+        self.title_label = ClickableLabel(title)
         self.paper_count_label = QLabel(paper_count)
 
         self.title_label.setMaximumWidth(270)

@@ -11,11 +11,13 @@ from AddThemeDialog import AddThemeDialog
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, pdf_folder, db_file):
+    def __init__(self, pdf_folder, db_file, default_theme_category):
         super(MainWindow, self).__init__()
 
         self.pdf_folder = pdf_folder
         self.db_file = db_file
+        self.default_theme_category = default_theme_category
+
         self.setWindowTitle("Paper Comment Application")
         # self.setFixedSize(650, 600)  # 固定大小
         self.setGeometry(500, 300, 650, 700)   # 可拖动窗口大小
@@ -307,7 +309,7 @@ class MainWindow(QMainWindow):
             self.main_layout.addWidget(comment)
 
     def show_add_theme_dialog(self):
-        dialog = AddThemeDialog(self.db_file)
+        dialog = AddThemeDialog(self.db_file, self.default_theme_category)
         result = dialog.exec_()
 
         if result == QDialog.Accepted:  # 添加成功
@@ -315,5 +317,5 @@ class MainWindow(QMainWindow):
             self.refresh_main_layout()  # 更新主体部分内容
 
     def show_default_category(self):
-        self.search_type.setCurrentText("毕业设计")
+        self.search_type.setCurrentText(self.default_theme_category)
         self.search_main_layout()

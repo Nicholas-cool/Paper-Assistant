@@ -11,7 +11,8 @@ if __name__ == "__main__":
         config = yaml.load(f, Loader=yaml.FullLoader)
 
     app = QApplication(sys.argv)
-    window = MainWindow(pdf_folder=config['paper_repo_path'], db_file=config['db_file'])
+    window = MainWindow(pdf_folder=config['paper_repo_path'], db_file=config['db_file'],
+                        default_theme_category=config['default_theme_category'])
 
     window.show()
     sys.exit(app.exec_())

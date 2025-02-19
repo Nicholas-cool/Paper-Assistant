@@ -1,14 +1,18 @@
 from PySide2.QtWidgets import QVBoxLayout, QLabel, QPushButton, QLineEdit, QTextEdit, QComboBox, QDialog, QMessageBox
 from PySide2.QtGui import QFont
+from PySide2.QtCore import Qt
 import sqlite3
 
 
 class AddThemeDialog(QDialog):
-    def __init__(self, db_file):
+    def __init__(self, db_file, default_theme_category):
         super(AddThemeDialog, self).__init__()
         self.setWindowTitle("新增主题")
         self.setGeometry(800, 400, 400, 200)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)  # 设置保持在最前
+
         self.db_file = db_file   # 数据库文件
+        self.default_theme_category = default_theme_category
 
         # 设置字体和行距
         font = QFont()
@@ -55,6 +59,9 @@ class AddThemeDialog(QDialog):
         self.add_button.clicked.connect(self.do_add_theme)
         self.setLayout(layout)
 
+        # 设置默认的选项
+        self.show_default_category()
+
     def do_add_theme(self):
         t_type = self.type_combobox.currentText()
         t_title = self.title_input.text()
@@ -75,3 +82,6 @@ class AddThemeDialog(QDialog):
 
         QMessageBox.information(self, "成功添加", "主题已成功添加!")
         self.accept()
+
+    def show_default_category(self):
+        self.type_combobox.setCurrentText(self.default_theme_category)
